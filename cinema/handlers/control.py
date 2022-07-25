@@ -76,7 +76,7 @@ async def movies_add(_: Client, message: Message):
     movie = await Movie.create(title=movie_title)
     episodes = sorted(tempdir_path.glob("*.mkv"))
     movie_dir = Path(f"./data/movies/{movie.id}")
-    os.makedirs(movie_dir)
+    os.makedirs(movie_dir, exist_ok=True)
     for i, file in enumerate(episodes):
         with open(file, "rb") as infile, open(
             movie_dir / f"{i + 1}.mkv", "wb"
