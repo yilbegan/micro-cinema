@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
 
     environment:
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres/micro_cinema
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres/micro_cinema
 
     depends_on:
       - database
