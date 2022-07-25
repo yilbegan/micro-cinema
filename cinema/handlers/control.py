@@ -5,7 +5,7 @@ from ..database import Movie
 
 async def movies_list(_: Client, message: Message):
     movies = await Movie.all()
-    reply = ["*Available movies:*", ""]
+    reply = ["**Available movies:**", ""]
     for movie in movies:
         reply.append(f"{movie.id}. `{movie.title}`")
     if not movies:
@@ -22,7 +22,7 @@ async def movies_inspect(_: Client, message: Message):
         await message.reply("Invalid movie id.")
         return
 
-    reply = [f"*{movie.title}*", ""]
+    reply = [f"**{movie.title}**", ""]
     for i, episode in enumerate(movie.episodes):
         reply.append(f"{i + 1}. `{episode}`")
     await message.reply("\n".join(reply))
