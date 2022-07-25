@@ -13,7 +13,7 @@ services:
 
   cinema:
     build:
-      context: ./api/
+      context: .
       dockerfile: Dockerfile
 
     environment:
