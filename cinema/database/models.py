@@ -4,12 +4,15 @@ from .fields import DataClassField
 
 
 class Movie(Model):
+    id: int = fields.IntField(pk=True)
     title: str = fields.CharField(max_length=128)
-    chapters: str = DataClassField(list[str])
+    episodes: str = DataClassField(list[str])
+    bookmarks: fields.ReverseRelation["Bookmark"]
 
 
-class ChatStatus(Model):
+class Bookmark(Model):
+    id: int = fields.IntField(pk=True)
     chat_id: int = fields.IntField()
-    movie: Movie | None = fields.ForeignKeyField("models.Movie")
-    chapter: int = fields.IntField()
+    movie: fields.ForeignKeyRelation[Movie] = fields.ForeignKeyField("models.Movie", related_name="bookmarks")
+    episode: int = fields.IntField()
     timecode: int = fields.IntField()
