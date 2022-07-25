@@ -2,13 +2,16 @@ FROM python:3.9
 
 WORKDIR /usr/src/app/
 
-RUN apt update
-RUN apt install ffmpeg curl
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update
+RUN apt-get install -y ffmpeg curl
 
 # Cringe starts here
 RUN curl -sL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh
 RUN bash /tmp/nodesource_setup.sh
-RUN apt install nodejs
+RUN apt-get install -y nodejs
+RUN rm -rf /var/lib/apt/lists/*
 # Cringe ends here
 
 RUN pip install poetry
