@@ -58,6 +58,7 @@ async def movies_add(_: Client, message: Message):
         await message.reply("Please, attach a zip file.")
         return
 
+    await message.reply("Downloading your movie...")
     match = message.matches[0]
     movie_title = match.group(1) or "Le cool movie"
 
@@ -77,7 +78,9 @@ async def movies_add(_: Client, message: Message):
     movie_dir = Path(f"./data/movies/{movie.id}")
     os.makedirs(movie_dir)
     for i, file in enumerate(episodes):
-        with open(file, "rb") as infile, open(movie_dir / f"{i + 1}.mkv") as outfile:
+        with open(file, "rb") as infile, open(
+            movie_dir / f"{i + 1}.mkv", "wb"
+        ) as outfile:
             shutil.copyfileobj(infile, outfile)
         movie.episodes.append(f"Episode {i + 1}")
     tempdir.cleanup()
