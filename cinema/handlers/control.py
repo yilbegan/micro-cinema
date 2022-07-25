@@ -38,7 +38,7 @@ async def movies_inspect(_: Client, message: Message):
 
 
 def unzip_large(path: Path):
-    contents = ZipFile(open(path, "rb"))
+    contents = ZipFile(open(path / "movie.zip", "rb"))
 
     for file in contents.infolist():
         # wtf lol
