@@ -1,10 +1,12 @@
-from pytgcalls import PyTgCalls
-from pytgcalls import idle
-from .database import init as init_db
-from .context import tgcalls_client
-from .handlers import setup_handlers
 import json
+
 import pyrogram
+from pytgcalls import idle
+from pytgcalls import PyTgCalls
+
+from .context import tgcalls_client
+from .database import init as init_db
+from .handlers import setup_handlers
 
 
 async def main():
