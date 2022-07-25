@@ -7,7 +7,7 @@ from .fields import DataClassField
 class Movie(Model):
     id: int = fields.IntField(pk=True)
     title: str = fields.CharField(max_length=128)
-    episodes: str = DataClassField(list[str])
+    episodes: list[str] = DataClassField(list[str], default=lambda: [])
     bookmarks: fields.ReverseRelation["Bookmark"]
 
 
