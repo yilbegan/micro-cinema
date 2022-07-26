@@ -6,7 +6,7 @@ authors = ["yilbegan <w2v@protonmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 Pyrogram = "^2.0.35"
 py-tgcalls = "^0.9.1"
 tortoise-orm = {extras = ["asyncpg"], version = "^0.19.2"}
