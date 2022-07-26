@@ -121,3 +121,15 @@ async def bookmarks_list(_: Client, message: Message):
         reply.append("`Nothing :(`")
 
     await message.reply("\n".join(reply))
+
+
+async def movies_remove(_: Client, message: Message):
+    movie_id = int(message.matches[0].group(1))
+    movie = await Movie.filter(id=movie_id).first()
+    if movie is None:
+        await message.reply("Invalid movie id.")
+        return
+
+    shutil.rmtree(Path(f"./data/movies/{movie.id}"))
+    await movie.delete()
+    await message.reply(f"Deleted movie #{movie.id}.")

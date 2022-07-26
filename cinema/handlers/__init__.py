@@ -8,6 +8,7 @@ from .control import bookmarks_list
 from .control import movies_add
 from .control import movies_inspect
 from .control import movies_list
+from .control import movies_remove
 from .control import movies_rename
 from .video import on_stream_ends
 from .video import pause_movie
@@ -30,6 +31,11 @@ def setup_handlers(client: Client):
     client.on_message(filters.regex(re.compile(r"^\/movies add(?: \"(.{1,128})\")?$")))(
         movies_add
     )
+
+    client.on_message(filters.regex(re.compile(r"^\/movies remove ([0-9]+)$")))(
+        movies_remove
+    )
+
     client.on_message(
         filters.regex(re.compile(r"^\/movies rename ([0-9]+) \"(.{1,128})\"$"))
     )(movies_rename)
