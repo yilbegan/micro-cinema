@@ -24,3 +24,4 @@ services:
 
     volumes:
       - ./data/cinema:/usr/src/app/data
+      - ./account:/usr/src/app/data/account

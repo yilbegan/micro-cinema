@@ -4,9 +4,9 @@ import pyrogram
 from pytgcalls import idle
 from pytgcalls import PyTgCalls
 
-from .context import tgcalls_client
 from .database import init as init_db
 from .handlers import setup_handlers
+from cinema.misc.context import tgcalls_client
 
 
 async def main():

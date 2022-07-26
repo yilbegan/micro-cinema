@@ -1,4 +1,3 @@
-import pytgcalls.exceptions
 from pyrogram import Client
 from pyrogram.types import Message
 from pytgcalls import StreamType
@@ -7,8 +6,8 @@ from pytgcalls.exceptions import NoActiveGroupCall
 from pytgcalls.exceptions import NotInGroupCallError
 from pytgcalls.types import AudioVideoPiped
 
-from ..context import tgcalls_client
 from ..database import Movie
+from cinema.misc.context import tgcalls_client
 
 
 async def play_movie(_: Client, message: Message):

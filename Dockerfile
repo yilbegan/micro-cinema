@@ -5,12 +5,12 @@ WORKDIR /usr/src/app/
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
-RUN apt-get install -y ffmpeg curl
+RUN apt-get install --no-install-recommends -y ffmpeg curl
 
 # Cringe starts here
 RUN curl -sL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh
 RUN bash /tmp/nodesource_setup.sh
-RUN apt-get install -y nodejs
+RUN apt-get install --no-install-recommends -y nodejs
 RUN rm -rf /var/lib/apt/lists/*
 # Cringe ends here
 
