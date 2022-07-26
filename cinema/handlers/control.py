@@ -86,12 +86,12 @@ async def movies_add(_: Client, message: Message):
     tempdir.cleanup()
     if not movie.episodes:
         await movie.delete()
-        await message.reply("To add a movie you should send `zip` with `mkv` files!")
+        await message.reply("To add a movie you should send `zip` of `mkv` files!")
         return
 
     await movie.save()
     await message.reply(
-        f"Added movie **#{movie.id}** (`{movie_title}`) with {len(episodes)}!"
+        f"Added movie **#{movie.id}** (`{movie_title}`) with {len(episodes)} episodes!"
     )
 
 
