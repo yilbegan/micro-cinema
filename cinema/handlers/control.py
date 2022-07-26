@@ -111,7 +111,9 @@ async def movies_rename(_: Client, message: Message):
 
 
 async def bookmarks_list(_: Client, message: Message):
-    bookmarks = await Bookmark.filter(chat_id=message.chat.id).all()
+    bookmarks = (
+        await Bookmark.filter(chat_id=message.chat.id).prefetch_related("movie").all()
+    )
     reply = ["**Bookmarks:**", ""]
     for bookmark in bookmarks:
         reply.append(f"{bookmark.id}. `{bookmark.movie.title}` ({bookmark.episode})")

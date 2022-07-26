@@ -111,7 +111,7 @@ async def play_movie(_: Client, message: Message):
 async def play_bookmark(_: Client, message: Message):
     match = message.matches[0]
     bookmark_id = match.group(1)
-    bookmark = await Bookmark.filter(id=bookmark_id).first()
+    bookmark = await Bookmark.filter(id=bookmark_id).prefetch_related("movie").first()
     if bookmark is None:
         await message.reply("Bookmark not found!")
         return
