@@ -6,8 +6,6 @@ from pytgcalls.exceptions import GroupCallNotFound
 from pytgcalls.exceptions import NoActiveGroupCall
 from pytgcalls.exceptions import NotInGroupCallError
 from pytgcalls.types import AudioVideoPiped
-from pytgcalls.types import StreamAudioEnded
-from pytgcalls.types import StreamVideoEnded
 from pytgcalls.types import Update
 
 from ..database import Bookmark
@@ -200,10 +198,15 @@ async def on_stream_ends(client: PyTgCalls, update: Update):
         return
 
     if current_status.episode == len(movie.episodes):
+        del clock[update.chat_id]
         await pyro_client.send_message(
             chat_id=update.chat_id, text=f"Thanks for watching `{movie.title}`!"
         )
+        await client.leave_group_call(chat_id=update.chat_id)
         return
+
+    current_status = ViewStatus(movie_id=movie.id, episode=current_status.episode + 1)
+    clock[update.chat_id] = current_status
 
     await pyro_client.send_message(
         chat_id=update.chat_id,
