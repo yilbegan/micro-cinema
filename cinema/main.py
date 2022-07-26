@@ -6,7 +6,10 @@ from pytgcalls import PyTgCalls
 
 from .database import init as init_db
 from .handlers import setup_handlers
-from cinema.misc.context import tgcalls_client
+from .handlers import setup_tgcalls
+from .misc.context import chat_clock
+from .misc.context import pyrogram_client
+from .misc.context import tgcalls_client
 
 
 async def main():
@@ -26,6 +29,10 @@ async def main():
 
     setup_handlers(client)
     tgcalls = PyTgCalls(client)
+    setup_tgcalls(tgcalls)
     tgcalls_client.set(tgcalls)
+    pyrogram_client.set(client)
+    chat_clock.set({})
+
     await tgcalls.start()
     await idle()

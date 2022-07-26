@@ -9,6 +9,7 @@ from zipfile import ZipFile
 from pyrogram import Client
 from pyrogram.types import Message
 
+from ..database import Bookmark
 from ..database import Movie
 
 
@@ -107,3 +108,14 @@ async def movies_rename(_: Client, message: Message):
     movie.title = movie_title
     await movie.save()
     await message.reply(f"Updated title for movie **#{movie_id}**")
+
+
+async def bookmarks_list(_: Client, message: Message):
+    bookmarks = await Bookmark.filter(chat_id=message.chat.id).all()
+    reply = ["**Bookmarks:**", ""]
+    for bookmark in bookmarks:
+        reply.append(f"{bookmark.id}. `{bookmark.movie.title}` ({bookmark.episode})")
+    if not bookmarks:
+        reply.append("`Nothing :(`")
+
+    await message.reply("\n".join(reply))
