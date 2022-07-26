@@ -198,7 +198,6 @@ async def on_stream_ends(client: PyTgCalls, update: Update):
         return
 
     if current_status.episode == len(movie.episodes):
-        del clock[update.chat_id]
         await pyro_client.send_message(
             chat_id=update.chat_id, text=f"Thanks for watching `{movie.title}`!"
         )
