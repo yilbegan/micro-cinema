@@ -221,6 +221,6 @@ async def on_stream_ends(client: PyTgCalls, update: Update):
     await client.change_stream(
         update.chat_id,
         AudioVideoPiped(
-            f"./data/movies/{movie.id}/{current_status.episode + 1}.mkv",
+            f"./data/movies/{movie.id}/{current_status.episode}.mkv",
         ),
     )
