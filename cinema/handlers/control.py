@@ -11,6 +11,7 @@ from pyrogram.types import Message
 
 from ..database import Bookmark
 from ..database import Movie
+from ..misc.utils import format_time
 
 
 async def movies_list(_: Client, message: Message):
@@ -116,7 +117,9 @@ async def bookmarks_list(_: Client, message: Message):
     )
     reply = ["**Bookmarks:**", ""]
     for bookmark in bookmarks:
-        reply.append(f"{bookmark.id}. `{bookmark.movie.title}` ({bookmark.episode})")
+        reply.append(
+            f"{bookmark.id}. `{bookmark.movie.title}` ({bookmark.episode} {format_time(bookmark.timecode)})"
+        )
     if not bookmarks:
         reply.append("`Nothing :(`")
 
