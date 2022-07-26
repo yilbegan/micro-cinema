@@ -3,13 +3,13 @@ import re
 from pyrogram import Client
 from pyrogram import filters
 from pytgcalls import PyTgCalls
-from pytgcalls.methods.decorators import on_stream_end
 
 from .control import bookmarks_list
 from .control import movies_add
 from .control import movies_inspect
 from .control import movies_list
 from .control import movies_rename
+from .video import on_stream_ends
 from .video import pause_movie
 from .video import play_bookmark
 from .video import play_movie
@@ -54,4 +54,4 @@ def setup_handlers(client: Client):
 
 
 def setup_tgcalls(client: PyTgCalls):
-    client.on_stream_end()(on_stream_end)
+    client.on_stream_end()(on_stream_ends)
