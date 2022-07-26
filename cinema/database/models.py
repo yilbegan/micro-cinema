@@ -13,7 +13,7 @@ class Movie(Model):
 
 class Bookmark(Model):
     id: int = fields.IntField(pk=True)
-    chat_id: int = fields.IntField()
+    chat_id: int = fields.BigIntField()
     movie: fields.ForeignKeyRelation[Movie] = fields.ForeignKeyField(
         "models.Movie", related_name="bookmarks"
     )
