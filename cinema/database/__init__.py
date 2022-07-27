@@ -1,6 +1,4 @@
-import asyncio
 import itertools
-from dataclasses import dataclass
 
 from loguru import logger
 from tortoise import Tortoise
@@ -9,6 +7,7 @@ from tortoise import transactions
 from ..config import EpisodeSettings
 from ..config import get_settings
 from ..config import MovieSettings
+from ..misc.utils import get_media_info
 from .models import Bookmark
 from .models import Episode
 from .models import Movie
@@ -31,38 +30,6 @@ async def init():
     )
 
     await Tortoise.generate_schemas(safe=True)
-
-
-@dataclass
-class MediaInfo:
-    duration: int
-
-
-class FFmpegException(Exception):
-    pass
-
-
-async def get_media_info(location: str) -> MediaInfo:
-    cmd = [
-        "ffprobe",
-        "-i",
-        location,
-        "-v",
-        "error",
-        "-show_entries",
-        "format=duration" "-hide_banner",
-        "-of",
-        "default=noprint_wrappers=1:nokey=1",
-    ]
-
-    process = await asyncio.create_subprocess_shell(
-        cmd, stderr=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE
-    )
-
-    stdout, stderr = await process.communicate()
-    if process.returncode != 0:
-        raise FFmpegException(stderr)
-    return MediaInfo(duration=int(float(stdout)))
 
 
 @transactions.atomic

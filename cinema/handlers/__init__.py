@@ -5,11 +5,8 @@ from pyrogram import filters
 from pytgcalls import PyTgCalls
 
 from .control import bookmarks_list
-from .control import movies_add
 from .control import movies_inspect
 from .control import movies_list
-from .control import movies_remove
-from .control import movies_rename
 from .video import on_stream_ends
 from .video import pause_movie
 from .video import play_bookmark
