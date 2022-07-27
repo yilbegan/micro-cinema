@@ -36,7 +36,7 @@ async def movies_inspect(_: Client, message: Message):
         await message.reply("Invalid movie id.")
         return
 
-    reply = [f"**{movie.title}**", "", f"`{movie.description}`", ""]
+    reply = [f"**{movie.title}**", "", f"`{movie.description.strip()}`", ""]
     episodes = await movie.episodes.order_by("episode_id").all()
     for i, episode in enumerate(episodes):
         reply.append(
