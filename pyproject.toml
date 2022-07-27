@@ -11,8 +11,11 @@ Pyrogram = "^2.0.35"
 py-tgcalls = "^0.9.1"
 tortoise-orm = {extras = ["asyncpg"], version = "^0.19.2"}
 dataclass-factory = "^2.16"
-pydantic = "^1.9.1"
 TgCrypto = "^1.2.3"
+PyYAML = "^6.0"
+pyaml-env = "^1.1.5"
+httpx = "^0.23.0"
+loguru = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.20.0"

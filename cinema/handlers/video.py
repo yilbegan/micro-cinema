@@ -9,6 +9,7 @@ from pytgcalls.types import AudioVideoPiped
 from pytgcalls.types import Update
 
 from ..database import Bookmark
+from ..database import Episode
 from ..database import Movie
 from ..misc.clock import ViewStatus
 from ..misc.context import chat_clock
@@ -25,25 +26,30 @@ async def add_bookmark(chat_id: int):
     current_status.pause()
     progress = current_status.get_progress()
     del clock[chat_id]
+    movie = await Movie.filter(id=current_status.movie_id).first()
+    episode = await Episode.filter(
+        movie=movie, episode_id=current_status.episode
+    ).first()
 
     await Bookmark.create(
         chat_id=chat_id,
-        movie=await Movie.filter(id=current_status.movie_id).first(),
-        episode=current_status.episode,
-        timecode=progress,
+        movie=movie,
+        episode=episode,
+        timecode=min(progress, episode.duration - 1),
     )
 
 
 async def stream_movie(
-    message: Message, movie_id: int, episode: int, timecode: int | None = None
+    message: Message, movie_id: str, episode: int, timecode: int | None = None
 ):
     tgcalls = tgcalls_client.get()
 
-    movie = await Movie.filter(id=movie_id).first()
+    movie = await Movie.filter(movie_id=movie_id).first()
     if movie is None:
         await message.reply("Invalid movie id.")
         return
-    if episode > len(movie.episodes):
+    episode = await Episode.filter(episode_id=episode, movie=movie).first()
+    if episode is None:
         await message.reply("Invalid episode.")
         return
 
@@ -55,7 +61,7 @@ async def stream_movie(
     await message.reply(
         f"**Starting**\n\n"
         f"Movie: `{movie.title}`\n"
-        f"Episode: `{movie.episodes[episode - 1]} ({episode})`"
+        f"Episode: `{episode.title} ({episode.episode_id})`"
     )
 
     clock = chat_clock.get()
@@ -65,7 +71,7 @@ async def stream_movie(
         action = tgcalls.join_group_call(
             message.chat.id,
             AudioVideoPiped(
-                f"./data/movies/{movie_id}/{episode}.mkv",
+                episode.location,
                 additional_ffmpeg_parameters=(
                     f" -ss {int(timecode)} " if timecode is not None else ""
                 ),
@@ -77,7 +83,7 @@ async def stream_movie(
         action = tgcalls.change_stream(
             message.chat.id,
             AudioVideoPiped(
-                f"./data/movies/{movie_id}/{episode}.mkv",
+                episode.location,
                 additional_ffmpeg_parameters=(
                     f" -ss {int(timecode)} " if timecode is not None else ""
                 ),
@@ -85,19 +91,20 @@ async def stream_movie(
         )
 
     clock[message.chat.id] = ViewStatus(
-        movie_id=movie_id, episode=episode, progress=timecode
+        movie_id=movie_id, episode=episode.episode_id, progress=timecode
     )
 
     try:
         await action
     except NoActiveGroupCall:
+        del clock[message.chat.id]
         await message.reply("Please, create a group call.")
 
 
 async def play_movie(_: Client, message: Message):
     match = message.matches[0]
     movie_id, episode = match.groups()
-    movie_id = int(movie_id)
+    movie_id = movie_id
     episode = int(episode or 1)
     await stream_movie(
         message=message,
@@ -116,7 +123,7 @@ async def play_bookmark(_: Client, message: Message):
 
     await stream_movie(
         message=message,
-        movie_id=bookmark.movie.id,
+        movie_id=bookmark.movie.movie_id,
         episode=bookmark.episode,
         timecode=bookmark.timecode,
     )
@@ -193,7 +200,11 @@ async def on_stream_ends(client: PyTgCalls, update: Update):
 
     del clock[update.chat_id]
     current_status.pause()
-    movie = await Movie.filter(id=current_status.movie_id).first()
+    movie = (
+        await Movie.filter(movie_id=current_status.movie_id)
+        .prefetch_related("episodes")
+        .first()
+    )
     if movie is None:
         return
 
@@ -204,15 +215,20 @@ async def on_stream_ends(client: PyTgCalls, update: Update):
         await client.leave_group_call(chat_id=update.chat_id)
         return
 
-    current_status = ViewStatus(movie_id=movie.id, episode=current_status.episode + 1)
+    current_status = ViewStatus(
+        movie_id=movie.movie_id, episode=current_status.episode + 1
+    )
     clock[update.chat_id] = current_status
+    episode = await Episode.filter(
+        movie=movie, episode_id=current_status.episode + 1
+    ).first()
 
     await pyro_client.send_message(
         chat_id=update.chat_id,
         text=(
             f"**Now playing**\n\n"
-            f"{movie.title}: "
-            f"{movie.episodes[current_status.episode - 1]} "
+            f"{movie.title}\n"
+            f"{episode.title} "
             f"({current_status.episode})"
         ),
     )
@@ -220,6 +236,6 @@ async def on_stream_ends(client: PyTgCalls, update: Update):
     await client.change_stream(
         update.chat_id,
         AudioVideoPiped(
-            f"./data/movies/{movie.id}/{current_status.episode}.mkv",
+            episode.location,
         ),
     )

@@ -23,5 +23,5 @@ services:
       - database
 
     volumes:
-      - ./data/cinema:/usr/src/app/data
+      - ./config.yaml:/user/src/app/config.yaml
       - ./account:/usr/src/app/data/account

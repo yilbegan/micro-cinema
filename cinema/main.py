@@ -1,10 +1,12 @@
 import json
 
 import pyrogram
+from loguru import logger
 from pytgcalls import idle
 from pytgcalls import PyTgCalls
 
 from .database import init as init_db
+from .database import update_from_settings
 from .handlers import setup_handlers
 from .handlers import setup_tgcalls
 from .misc.context import chat_clock
@@ -12,8 +14,12 @@ from .misc.context import pyrogram_client
 from .misc.context import tgcalls_client
 
 
+@logger.catch(reraise=True)
 async def main():
+    logger.info("Starting...", enqueue=True)
+
     await init_db()
+    await update_from_settings()
 
     with open("./data/account/metadata.json", "r") as f:
         metadata = json.load(f)
@@ -34,5 +40,6 @@ async def main():
     pyrogram_client.set(client)
     chat_clock.set({})
 
+    logger.info("Starting bot...", enqueue=True)
     await tgcalls.start()
     await idle()

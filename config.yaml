@@ -1,0 +1,28 @@
+bot:
+  # Short name or ID
+  # Admins can reload config and use any moderator command
+  admins:
+    - !ENV "${ADMIN}:@lol"
+
+  # Moderators can start/stop/pause/skip etc.
+  moderators:
+    - 123
+
+  # Available languages: English (en)
+  language: "en"
+
+  # You can use pyaml-env syntax
+  database_url: !ENV "${DATABASE_URL:sqlite://./micro-cinema.db}"
+
+
+movies:
+  - # ID it is necessary to distinguish between films
+    id: morbius
+    title: "Morbius"
+    description: |
+      some description goes here
+      and here
+    episodes:
+      - title: "Title"
+        # Path or url to the file
+        location: "./movies/morbius.mp4"

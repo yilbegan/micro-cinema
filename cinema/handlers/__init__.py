@@ -24,21 +24,9 @@ def setup_handlers(client: Client):
         movies_list
     )
 
-    client.on_message(filters.regex(re.compile(r"^\/movies inspect ([0-9]+)$")))(
+    client.on_message(filters.regex(re.compile(r"^\/movies inspect ([a-z_]+)$")))(
         movies_inspect
     )
-
-    client.on_message(filters.regex(re.compile(r"^\/movies add(?: \"(.{1,128})\")?$")))(
-        movies_add
-    )
-
-    client.on_message(filters.regex(re.compile(r"^\/movies remove ([0-9]+)$")))(
-        movies_remove
-    )
-
-    client.on_message(
-        filters.regex(re.compile(r"^\/movies rename ([0-9]+) \"(.{1,128})\"$"))
-    )(movies_rename)
 
     client.on_message(filters.regex(re.compile(r"^\/bookmarks( list)?$")))(
         bookmarks_list
