@@ -23,5 +23,5 @@ services:
       - database
 
     volumes:
-      - ./config.yaml:/user/src/app/config.yaml
+      - ./config.yaml:/usr/src/app/config.yaml
       - ./account:/usr/src/app/data/account
