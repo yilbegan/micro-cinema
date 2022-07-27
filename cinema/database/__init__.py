@@ -32,7 +32,7 @@ async def init():
     await Tortoise.generate_schemas(safe=True)
 
 
-@transactions.atomic
+@transactions.atomic()
 async def update_movie(movie_db: Movie, movie_settings: MovieSettings):
     movie_db.title = movie_settings.title
     movie_db.description = movie_settings.description
@@ -71,7 +71,7 @@ async def update_movie(movie_db: Movie, movie_settings: MovieSettings):
     await movie_db.save()
 
 
-@transactions.atomic
+@transactions.atomic()
 async def create_movie(movie_settings: MovieSettings):
     movie = await Movie.create(
         movie_id=movie_settings.id,
