@@ -55,7 +55,7 @@ async def get_media_info(location: str) -> MediaInfo:
     duration = int(float(duration))
     format_names = format_name.split(",")
     for format_name in format_names:
-        if format_name not in format_extensions:
+        if format_name in format_extensions:
             extension = format_extensions[format_name]
             break
     else:
