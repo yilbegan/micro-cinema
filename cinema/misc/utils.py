@@ -34,7 +34,7 @@ async def get_media_info(location: str) -> MediaInfo:
         "format=duration,format_name",  # format=duration,format_name:stream=codec_type
         "-hide_banner",
         "-of",
-        "default=nk=1:nw=1",
+        "default=nw=1",
     ]
 
     process = await asyncio.create_subprocess_exec(
@@ -46,9 +46,14 @@ async def get_media_info(location: str) -> MediaInfo:
         raise FFmpegException(stderr)
 
     stdout = stdout.decode("utf-8").strip()
-    duration, format_names = stdout.split("\n")
+    entries = {}
+    for line in stdout.split("\n"):
+        entry_name, entry_value = line.split("=", 1)
+        entries[entry_name] = entry_value
+
+    duration, format_name = entries["duration"], entries["format_name"]
     duration = int(float(duration))
-    format_names = format_names.split(",")
+    format_names = format_name.split(",")
     for format_name in format_names:
         if format_name not in format_extensions:
             extension = format_extensions[format_name]
@@ -56,4 +61,4 @@ async def get_media_info(location: str) -> MediaInfo:
     else:
         raise FFmpegException("Unknown file format!")
 
-    return MediaInfo(duration=duration, format=extension)
+    return MediaInfo(duration=duration, extension=extension)
