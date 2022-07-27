@@ -18,6 +18,7 @@ class Episode(Model):
     id: int = fields.IntField(pk=True)
     episode_id: int = fields.IntField()
     location: str = fields.CharField(max_length=256)
+    cache: str | None = fields.CharField(max_length=256, null=True, default=None)
     duration: int = fields.IntField()
     title: str = fields.CharField(max_length=128)
     bookmarks: fields.ReverseRelation["Bookmark"]
@@ -33,7 +34,7 @@ class Bookmark(Model):
     id: int = fields.IntField(pk=True)
     chat_id: int = fields.BigIntField()
     timecode: int = fields.IntField()
-    description: str | None = fields.CharField(max_length=32, null=True, default=None)
+    name: str | None = fields.CharField(max_length=32, null=True, default=None)
     movie: fields.ForeignKeyRelation[Movie] = fields.ForeignKeyField(
         "models.Movie", related_name="bookmarks"
     )

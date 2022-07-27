@@ -71,7 +71,7 @@ async def stream_movie(
         action = tgcalls.join_group_call(
             message.chat.id,
             AudioVideoPiped(
-                episode.location,
+                episode.location if episode.cache is None else episode.cache,
                 additional_ffmpeg_parameters=(
                     f" -ss {int(timecode)} " if timecode is not None else ""
                 ),
@@ -83,7 +83,7 @@ async def stream_movie(
         action = tgcalls.change_stream(
             message.chat.id,
             AudioVideoPiped(
-                episode.location,
+                episode.location if episode.cache is None else episode.cache,
                 additional_ffmpeg_parameters=(
                     f" -ss {int(timecode)} " if timecode is not None else ""
                 ),
@@ -236,6 +236,6 @@ async def on_stream_ends(client: PyTgCalls, update: Update):
     await client.change_stream(
         update.chat_id,
         AudioVideoPiped(
-            episode.location,
+            episode.location if episode.cache is None else episode.cache,
         ),
     )

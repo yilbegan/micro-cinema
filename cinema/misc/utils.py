@@ -2,6 +2,10 @@ import asyncio
 from dataclasses import dataclass
 
 
+# TODO: More formats and check if audio only
+format_extensions = {"matroska": "mkv", "webm": "webm", "mp4": "mp4"}
+
+
 def format_time(time: int) -> str:
     seconds = time % 60
     minutes = (time // 60) % 60
@@ -12,6 +16,7 @@ def format_time(time: int) -> str:
 @dataclass
 class MediaInfo:
     duration: int
+    extension: str
 
 
 class FFmpegException(Exception):
@@ -26,10 +31,10 @@ async def get_media_info(location: str) -> MediaInfo:
         "-v",
         "error",
         "-show_entries",
-        "format=duration",
+        "format=duration,format_name",  # format=duration,format_name:stream=codec_type
         "-hide_banner",
         "-of",
-        "default=noprint_wrappers=1:nokey=1",
+        "default=nk=1:nw=1",
     ]
 
     process = await asyncio.create_subprocess_exec(
@@ -39,4 +44,16 @@ async def get_media_info(location: str) -> MediaInfo:
     stdout, stderr = await process.communicate()
     if process.returncode != 0:
         raise FFmpegException(stderr)
-    return MediaInfo(duration=int(float(stdout)))
+
+    stdout = stdout.decode("utf-8").strip()
+    duration, format_names = stdout.split("\n")
+    duration = int(float(duration))
+    format_names = format_names.split(",")
+    for format_name in format_names:
+        if format_name not in format_extensions:
+            extension = format_extensions[format_name]
+            break
+    else:
+        raise FFmpegException("Unknown file format!")
+
+    return MediaInfo(duration=duration, format=extension)

@@ -5,6 +5,7 @@ from pyrogram import filters
 from pytgcalls import PyTgCalls
 
 from .control import bookmarks_list
+from .control import cache_episode
 from .control import movies_inspect
 from .control import movies_list
 from .video import on_stream_ends
@@ -27,6 +28,10 @@ def setup_handlers(client: Client):
 
     client.on_message(filters.regex(re.compile(r"^\/bookmarks( list)?$")))(
         bookmarks_list
+    )
+
+    client.on_message(filters.regex(re.compile(r"^\/cache ([a-z_]+) ([0-9]+)$")))(
+        cache_episode
     )
 
     # video.py
