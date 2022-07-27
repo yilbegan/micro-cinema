@@ -26,7 +26,7 @@ async def add_bookmark(chat_id: int):
     current_status.pause()
     progress = current_status.get_progress()
     del clock[chat_id]
-    movie = await Movie.filter(id=current_status.movie_id).first()
+    movie = await Movie.filter(movie_id=current_status.movie_id).first()
     episode = await Episode.filter(
         movie=movie, episode_id=current_status.episode
     ).first()
