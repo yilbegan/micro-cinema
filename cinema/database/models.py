@@ -22,7 +22,7 @@ class Episode(Model):
     title: str = fields.CharField(max_length=128)
     bookmarks: fields.ReverseRelation["Bookmark"]
     movie: fields.ForeignKeyRelation[Movie] = fields.ForeignKeyField(
-        "movies.Movie", related_name="episodes"
+        "models.Movie", related_name="episodes"
     )
 
     class Meta:
