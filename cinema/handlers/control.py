@@ -105,7 +105,7 @@ async def cache_episode(_: Client, message: Message):
         await message.reply("Invalid episode.")
         return
 
-    if re.fullmatch(r"^https?:\/\/.*$", episode.location):
+    if not re.fullmatch(r"^https?:\/\/.*$", episode.location):
         await message.reply("Already using local location.")
         return
 
