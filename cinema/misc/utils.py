@@ -31,8 +31,8 @@ async def get_media_info(location: str) -> MediaInfo:
         "default=noprint_wrappers=1:nokey=1",
     ]
 
-    process = await asyncio.create_subprocess_shell(
-        cmd, stderr=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE
+    process = await asyncio.create_subprocess_exec(
+        *cmd, stderr=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE
     )
 
     stdout, stderr = await process.communicate()
