@@ -26,7 +26,8 @@ async def get_media_info(location: str) -> MediaInfo:
         "-v",
         "error",
         "-show_entries",
-        "format=duration" "-hide_banner",
+        "format=duration",
+        "-hide_banner",
         "-of",
         "default=noprint_wrappers=1:nokey=1",
     ]
