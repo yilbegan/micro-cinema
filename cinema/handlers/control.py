@@ -1,11 +1,3 @@
-import asyncio
-import os
-import shutil
-import zipfile
-from pathlib import Path
-from tempfile import TemporaryDirectory
-from zipfile import ZipFile
-
 from pyrogram import Client
 from pyrogram.types import Message
 
