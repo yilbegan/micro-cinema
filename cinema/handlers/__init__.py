@@ -31,7 +31,7 @@ def setup_handlers(client: Client):
 
     # video.py
 
-    client.on_message(filters.regex(re.compile(r"^\/play ([0-9]+)(?: ([0-9]+))?$")))(
+    client.on_message(filters.regex(re.compile(r"^\/play ([a-z_]+)(?: ([0-9]+))?$")))(
         play_movie
     )
 

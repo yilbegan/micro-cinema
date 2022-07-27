@@ -18,7 +18,7 @@ async def movies_list(_: Client, message: Message):
     movies = await Movie.all().limit(20)
     reply = ["**Available movies:**", ""]
     for movie in movies:
-        reply.append(f"{movie.movie_id}. `{movie.title}`")
+        reply.append(f"{movie.movie_id}: `{movie.title}`")
     if not movies:
         reply.append("`Nothing :(`")
 
