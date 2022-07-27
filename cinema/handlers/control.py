@@ -155,4 +155,4 @@ async def cache_episode(_: Client, message: Message):
 
 async def movies_update(_: Client, message: Message):
     await update_from_settings()
-    await message.reply("Movies has been updated from config.")
+    await message.reply("Movies have been updated from settings.")
