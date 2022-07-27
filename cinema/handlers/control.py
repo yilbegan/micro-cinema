@@ -37,7 +37,7 @@ async def movies_inspect(_: Client, message: Message):
     episodes = await movie.episodes.order_by("episode_id").all()
     for i, episode in enumerate(episodes):
         reply.append(
-            f"{episode.episode_id}. `{episode.title}` {format_time(episode.duration)}"
+            f"{episode.episode_id}. `{episode.title}` [{format_time(episode.duration)}]"
         )
     await message.reply("\n".join(reply))
 
