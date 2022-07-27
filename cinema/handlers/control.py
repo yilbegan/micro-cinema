@@ -11,6 +11,7 @@ from pyrogram.types import Message
 from ..database import Bookmark
 from ..database import Episode
 from ..database import Movie
+from ..database import update_from_settings
 from ..misc.utils import FFmpegException
 from ..misc.utils import format_time
 from ..misc.utils import get_media_info
@@ -150,3 +151,8 @@ async def cache_episode(_: Client, message: Message):
     await episode.save()
 
     await reply.edit_text(f"Cached `{movie_id}:{episode.episode_id}`.")
+
+
+async def movies_update(_: Client, message: Message):
+    await update_from_settings()
+    await message.reply("Movies has been updated from config.")

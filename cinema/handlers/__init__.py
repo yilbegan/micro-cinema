@@ -8,6 +8,7 @@ from .control import bookmarks_list
 from .control import cache_episode
 from .control import movies_inspect
 from .control import movies_list
+from .control import movies_update
 from .video import on_stream_ends
 from .video import pause_movie
 from .video import play_bookmark
@@ -25,6 +26,8 @@ def setup_handlers(client: Client):
     client.on_message(filters.regex(re.compile(r"^\/movies inspect ([a-z_]+)$")))(
         movies_inspect
     )
+
+    client.on_message(filters.regex(re.compile(r"^\/movies update$")))(movies_update)
 
     client.on_message(filters.regex(re.compile(r"^\/bookmarks( list)?$")))(
         bookmarks_list
