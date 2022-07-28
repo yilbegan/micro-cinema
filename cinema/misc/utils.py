@@ -1,9 +1,18 @@
 import asyncio
+import re
+import subprocess
 from dataclasses import dataclass
-
+from enum import Enum
+from pathlib import Path
 
 # TODO: More formats and check if audio only
+
 format_extensions = {"matroska": "mkv", "webm": "webm", "mp4": "mp4"}
+youtube_regex = re.compile(
+    r"^(?:https?:)?(?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/"
+    r"(?:watch|v|embed)(?:\.php)?(?:\?.*v=|\/))"
+    r"([a-zA-Z0-9\_-]{7,15})(?:[\?&][a-zA-Z0-9\_-]+=[a-zA-Z0-9\_-]+)*$"
+)
 
 
 def format_time(time: int) -> str:
@@ -23,7 +32,53 @@ class FFmpegException(Exception):
     pass
 
 
+class YoutubeException(Exception):
+    pass
+
+
+class YoutubeQuality(Enum):
+    LOW = "best[height<=?360][width<=?480]"
+    MEDIUM = "best[height<=?480][width<=?640]"
+    HIGH = "best[height<=?720][width<=?1280]"
+
+
+async def resolve_youtube(
+    url: str, quality: YoutubeQuality = YoutubeQuality.MEDIUM
+) -> str:
+    process = await asyncio.create_subprocess_shell(
+        "command -v youtube-dl", stdout=subprocess.DEVNULL
+    )
+
+    await process.wait()
+    if process.returncode != 0:
+        raise FileNotFoundError("youtube-dl required for youtube videos!")
+
+    cmd = ["-g", "-f", quality.value, url]
+    process = await asyncio.create_subprocess_exec(
+        *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+    )
+
+    stdout, stderr = await process.communicate()
+    if process.returncode != 0:
+        raise YoutubeException(stdout.decode("utf-8"))
+
+    return stdout.decode("utf-8")
+
+
+async def resolve_location(location: str) -> str:
+    if youtube_regex.fullmatch(location):
+        return await resolve_youtube(location)
+    elif re.match("^https?://.*$", location):
+        return location
+    else:
+        if Path(location).is_file():
+            return location
+        raise FileNotFoundError(location)
+
+
 async def get_media_info(location: str) -> MediaInfo:
+    location = await resolve_location(location)
+
     cmd = [
         "ffprobe",
         "-i",
