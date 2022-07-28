@@ -53,7 +53,7 @@ async def resolve_youtube(
     if process.returncode != 0:
         raise FileNotFoundError("youtube-dl required for youtube videos!")
 
-    cmd = ["-g", "-f", quality.value, url]
+    cmd = ["youtube-dl", "-g", "-f", quality.value, url]
     process = await asyncio.create_subprocess_exec(
         *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
     )
