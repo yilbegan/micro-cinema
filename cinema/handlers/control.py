@@ -17,6 +17,7 @@ from ..misc.permissions import moderator_required
 from ..misc.utils import FFmpegException
 from ..misc.utils import format_time
 from ..misc.utils import get_media_info
+from ..misc.utils import resolve_location
 
 
 async def movies_list(_: Client, message: Message):
@@ -133,8 +134,10 @@ async def cache_episode(_: Client, message: Message):
         f"{movie_id}_{episode.episode_id:03d}_{uuid.uuid4().hex}.{media_info.extension}"
     )
 
+    location = await resolve_location(episode.location)
+
     async with aiofiles.open(cache_path, "wb") as file, httpx.AsyncClient() as client:
-        async with client.stream("GET", url=episode.location) as response:
+        async with client.stream("GET", url=location) as response:
             response: httpx.Response
             total = int(response.headers["Content-Length"])
             current_progress = 0
