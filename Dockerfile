@@ -14,6 +14,9 @@ RUN apt-get install --no-install-recommends -y nodejs
 RUN rm -rf /var/lib/apt/lists/*
 # Cringe ends here
 
+RUN curl -L https://yt-dl.org/latest/youtube-dl -o /usr/bin/youtube-dl
+RUN chmod 755 /usr/bin/youtube-dl
+
 RUN pip install poetry
 
 ADD poetry.lock /usr/src/app/
