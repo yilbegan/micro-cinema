@@ -19,7 +19,6 @@ from ..misc.permissions import moderator_required
 from ..misc.utils import resolve_location
 
 
-@moderator_required
 async def add_bookmark(chat_id: int):
     clock = chat_clock.get()
     current_status = clock.get(chat_id)
@@ -148,10 +147,9 @@ async def stop_movie(_: Client, message: Message):
         await message.reply("Nothing to stop.")
         return
 
-    if not match.group(1):
+    if match.group(1):
         await add_bookmark(message.chat.id)
-    else:
-        del clock[message.chat.id]
+    del clock[message.chat.id]
 
     try:
         await tgcalls.leave_group_call(chat_id=message.chat.id)
