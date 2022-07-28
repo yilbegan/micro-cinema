@@ -15,8 +15,10 @@ from ..misc.clock import ViewStatus
 from ..misc.context import chat_clock
 from ..misc.context import pyrogram_client
 from ..misc.context import tgcalls_client
+from ..misc.permissions import moderator_required
 
 
+@moderator_required
 async def add_bookmark(chat_id: int):
     clock = chat_clock.get()
     current_status = clock.get(chat_id)
@@ -101,6 +103,7 @@ async def stream_movie(
         await message.reply("Please, create a group call.")
 
 
+@moderator_required
 async def play_movie(_: Client, message: Message):
     match = message.matches[0]
     movie_id, episode = match.groups()
@@ -113,6 +116,7 @@ async def play_movie(_: Client, message: Message):
     )
 
 
+@moderator_required
 async def play_bookmark(_: Client, message: Message):
     match = message.matches[0]
     bookmark_id = match.group(1)
@@ -129,6 +133,7 @@ async def play_bookmark(_: Client, message: Message):
     )
 
 
+@moderator_required
 async def stop_movie(_: Client, message: Message):
     tgcalls = tgcalls_client.get()
     match = message.matches[0]
@@ -151,6 +156,7 @@ async def stop_movie(_: Client, message: Message):
         await message.reply("Stopped.")
 
 
+@moderator_required
 async def pause_movie(_: Client, message: Message):
     tgcalls = tgcalls_client.get()
     clock = chat_clock.get()
@@ -171,6 +177,7 @@ async def pause_movie(_: Client, message: Message):
         await message.reply("Paused.")
 
 
+@moderator_required
 async def resume_movie(_: Client, message: Message):
     tgcalls = tgcalls_client.get()
     clock = chat_clock.get()

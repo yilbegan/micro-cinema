@@ -21,7 +21,7 @@ async def main():
     await init_db()
     await update_from_settings()
 
-    with open("./data/account/metadata.json", "r") as f:
+    with open("./data/account/cinema.metadata.json", "r") as f:
         metadata = json.load(f)
 
     client = pyrogram.Client(
