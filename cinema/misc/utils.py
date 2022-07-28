@@ -60,9 +60,9 @@ async def resolve_youtube(
 
     stdout, stderr = await process.communicate()
     if process.returncode != 0:
-        raise YoutubeException(stdout.decode("utf-8"))
+        raise YoutubeException(stderr.decode())
 
-    return stdout.decode("utf-8")
+    return stdout.decode().split("\n")[0]
 
 
 async def resolve_location(location: str) -> str:
