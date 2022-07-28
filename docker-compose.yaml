@@ -5,7 +5,7 @@ services:
     image: postgres:12.1-alpine
 
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD-postgres}
       POSTGRES_DB: micro_cinema
 
     volumes:
@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
 
     environment:
-      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:postgres}@database/micro_cinema
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD-postgres}@database/micro_cinema
 
     depends_on:
       - database
