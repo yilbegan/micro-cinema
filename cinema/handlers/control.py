@@ -5,6 +5,10 @@ from pathlib import Path
 
 from loguru import logger
 from pyrogram import Client
+from pyrogram.errors import InviteHashEmpty
+from pyrogram.errors import InviteHashInvalid
+from pyrogram.errors import PeerIdInvalid
+from pyrogram.errors import UsernameInvalid
 from pyrogram.types import Message
 
 from ..database import Bookmark
@@ -175,3 +179,14 @@ async def movies_update(_: Client, message: Message):
         await message.reply("Error during update!")
     else:
         await message.reply("Movies have been updated from settings.")
+
+
+@moderator_required
+async def join_chat(client: Client, message: Message):
+    chat_id = message.matches[0].group(1)
+    try:
+        joined_chat = await client.join_chat(chat_id)
+    except Exception:  # noqa
+        await message.reply(f"Unable to join chat `{chat_id}`!")
+    else:
+        await message.reply(f"Joined chat `{joined_chat.title}`!")

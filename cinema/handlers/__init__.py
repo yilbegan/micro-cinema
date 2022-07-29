@@ -6,6 +6,7 @@ from pytgcalls import PyTgCalls
 
 from .control import bookmarks_list
 from .control import cache_episode
+from .control import join_chat
 from .control import movies_inspect
 from .control import movies_list
 from .control import movies_update
@@ -47,6 +48,12 @@ def setup_handlers(client: Client):
     client.on_message(filters.regex(re.compile(r"^\/play bookmark ([0-9]+)$")))(
         play_bookmark
     )
+
+    client.on_message(filters.regex(re.compile(r"^\/play bookmark ([0-9]+)$")))(
+        play_bookmark
+    )
+
+    client.on_message(filters.regex(re.compile(r"^/join (.+)$")))(join_chat)
 
     client.on_message(filters.regex(re.compile(r"^\/stop( save)?$")))(stop_movie)
     client.on_message(filters.regex(re.compile(r"^\/pause$")))(pause_movie)
