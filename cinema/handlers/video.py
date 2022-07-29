@@ -199,6 +199,7 @@ async def resume_movie(_: Client, message: Message):
         await message.reply("Resumed.")
 
 
+@moderator_required
 async def skip_to(_: Client, message: Message):
     clock = chat_clock.get()
     current_status = clock.get(message.chat.id)
