@@ -160,6 +160,8 @@ cython_debug/
 .idea/
 
 /data
+/movies
+/movies_cache
 /account
 /config.yaml
 micro-cinema.db*
