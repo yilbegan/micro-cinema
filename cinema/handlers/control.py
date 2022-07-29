@@ -161,9 +161,10 @@ async def cache_episode(_: Client, message: Message):
             if progress // step == current_progress:
                 continue
             current_progress = progress // step
-            await reply.edit_text(reply_text.format(current_progress))
+            await reply.edit_text(reply_text.format(current_progress * 25))
 
-    os.remove(episode.cache)
+    if episode.cache is not None:
+        os.remove(episode.cache)
     episode.cache = str(cache_path)
     await episode.save()
 
