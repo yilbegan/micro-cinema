@@ -21,13 +21,13 @@ async def main():
     await init_db()
     await update_from_settings()
 
-    with open("./data/account/cinema.metadata.json", "r") as f:
+    with open("./account/cinema.metadata.json", "r") as f:
         metadata = json.load(f)
 
     client = pyrogram.Client(
         "cinema",
         api_id=metadata.get("api_id") or metadata.get("app_id"),
-        workdir="./data/account",
+        workdir="./account",
         device_model=metadata.get("device"),
         app_version=metadata.get("app_version"),
         lang_code=metadata.get("lang_pack"),

@@ -106,4 +106,7 @@ async def update_from_settings():
         else:
             logger.info(f"Creating new movie '{movie_settings.id}'...", enqueue=True)
             await create_movie(movie_settings)
+    await Movie.filter(
+        movie_id__not_in=[movie.movie_id for movie in settings.movies]
+    ).delete()
     logger.info("Database updated.", enqueue=True)

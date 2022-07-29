@@ -24,4 +24,5 @@ services:
 
     volumes:
       - ./config.yaml:/usr/src/app/config.yaml
-      - ./account:/usr/src/app/data/account
+      - ./account:/usr/src/app/account
+      - ./movies:/usr/src/app/movies
