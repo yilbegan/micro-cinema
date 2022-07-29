@@ -149,7 +149,7 @@ async def get_media_info(location: str) -> MediaInfo:
     return MediaInfo(duration=duration, extension=extension)
 
 
-async def download_url(location: str, output: str | Path) -> AsyncGenerator[int]:
+async def download_url(location: str, output: str | Path) -> AsyncGenerator[int, None]:
     async with aiofiles.open(output, "wb") as file, httpx.AsyncClient() as client:
         async with client.stream("GET", url=location) as response:
             response: httpx.Response
