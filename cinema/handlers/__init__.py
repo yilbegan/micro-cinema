@@ -49,10 +49,6 @@ def setup_handlers(client: Client):
         play_bookmark
     )
 
-    client.on_message(filters.regex(re.compile(r"^\/play bookmark ([0-9]+)$")))(
-        play_bookmark
-    )
-
     client.on_message(filters.regex(re.compile(r"^/join (.+)$")))(join_chat)
 
     client.on_message(filters.regex(re.compile(r"^\/stop( save)?$")))(stop_movie)
