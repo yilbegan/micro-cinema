@@ -4,6 +4,11 @@ import subprocess
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from typing import AsyncGenerator
+from typing import BinaryIO
+
+import aiofiles
+import httpx
 
 # TODO: More formats and check if audio only
 
@@ -65,6 +70,31 @@ async def resolve_youtube(
     return stdout.decode().split("\n")[0]
 
 
+async def download_youtube(
+    output: Path | str,
+    youtube_url: str,
+    quality: YoutubeQuality = YoutubeQuality.MEDIUM,
+):
+    output = str(output)
+    process = await asyncio.create_subprocess_shell(
+        "command -v youtube-dl", stdout=subprocess.DEVNULL
+    )
+
+    await process.wait()
+    if process.returncode != 0:
+        raise FileNotFoundError("youtube-dl is required for youtube videos!")
+
+    cmd = ["youtube-dl", "-f", quality.value, "-o", output, youtube_url]
+
+    process = await asyncio.create_subprocess_exec(
+        *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+    )
+
+    stdout, stderr = await process.communicate()
+    if process.returncode != 0:
+        raise YoutubeException(stderr.decode())
+
+
 async def resolve_location(location: str) -> str:
     if youtube_regex.fullmatch(location):
         return await resolve_youtube(location)
@@ -117,3 +147,18 @@ async def get_media_info(location: str) -> MediaInfo:
         raise FFmpegException("Unknown file format!")
 
     return MediaInfo(duration=duration, extension=extension)
+
+
+async def download_url(location: str, output: str | Path) -> AsyncGenerator[int]:
+    async with aiofiles.open(output, "wb") as file, httpx.AsyncClient() as client:
+        async with client.stream("GET", url=location) as response:
+            response: httpx.Response
+            total = int(response.headers["Content-Length"])
+            current_progress = 0
+            async for chunk in response.aiter_bytes():
+                progress = int((response.num_bytes_downloaded / (total / 100)))
+                await file.write(chunk)
+                if current_progress == progress:
+                    continue
+                current_progress = progress
+                yield current_progress

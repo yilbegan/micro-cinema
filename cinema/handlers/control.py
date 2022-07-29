@@ -1,11 +1,10 @@
+import os
 import re
 import uuid
 from pathlib import Path
 
-import aiofiles
-import httpx
+from loguru import logger
 from pyrogram import Client
-from pyrogram.errors import RPCError
 from pyrogram.types import Message
 
 from ..database import Bookmark
@@ -14,10 +13,13 @@ from ..database import Movie
 from ..database import update_from_settings
 from ..misc.permissions import admin_required
 from ..misc.permissions import moderator_required
+from ..misc.utils import download_url
+from ..misc.utils import download_youtube
 from ..misc.utils import FFmpegException
 from ..misc.utils import format_time
 from ..misc.utils import get_media_info
-from ..misc.utils import resolve_location
+from ..misc.utils import youtube_regex
+from ..misc.utils import YoutubeException
 
 
 async def movies_list(_: Client, message: Message):
@@ -112,7 +114,7 @@ async def cache_episode(_: Client, message: Message):
         await message.reply("Invalid episode.")
         return
 
-    if not re.fullmatch(r"^https?:\/\/.*$", episode.location):
+    if not re.fullmatch(r"^https?://.*$", episode.location):
         await message.reply("Already using local location.")
         return
 
@@ -134,27 +136,30 @@ async def cache_episode(_: Client, message: Message):
         f"{movie_id}_{episode.episode_id:03d}_{uuid.uuid4().hex}.{media_info.extension}"
     )
 
-    location = await resolve_location(episode.location)
+    if youtube_regex.fullmatch(episode.location):
+        try:
+            await download_youtube(output=cache_path, youtube_url=episode.location)
+        except FileNotFoundError:
+            await reply.delete()
+            await message.reply("Youtube-dl is required for youtube videos!")
+            return
+        except YoutubeException:
+            await reply.delete()
+            await message.reply("Unable to cache from youtube!")
+            logger.exception("Unable to cache from youtube!")
+            return
+    else:
+        current_progress = 0
+        step = 25
+        async for progress in download_url(
+            location=episode.location, output=cache_path
+        ):
+            if progress // step == current_progress:
+                continue
+            current_progress = progress // step
+            await reply.edit_text(reply_text.format(current_progress))
 
-    async with aiofiles.open(cache_path, "wb") as file, httpx.AsyncClient() as client:
-        async with client.stream("GET", url=location) as response:
-            response: httpx.Response
-            total = int(response.headers["Content-Length"])
-            current_progress = 0
-            async for chunk in response.aiter_bytes():
-                progress = (
-                    int((response.num_bytes_downloaded / (total / 100)) // 25) * 25
-                )
-                await file.write(chunk)
-                if current_progress == progress:
-                    continue
-
-                current_progress = progress
-                try:
-                    await reply.edit_text(reply_text.format(current_progress))
-                except RPCError:
-                    pass
-
+    os.remove(episode.cache)
     episode.cache = str(cache_path)
     await episode.save()
 
