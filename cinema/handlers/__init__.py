@@ -47,7 +47,7 @@ def setup_handlers(client: Client):
         play_bookmark
     )
 
-    client.on_message(filters.regex(re.compile(r"^\/stop( nosave)?$")))(stop_movie)
+    client.on_message(filters.regex(re.compile(r"^\/stop( save)?$")))(stop_movie)
     client.on_message(filters.regex(re.compile(r"^\/pause$")))(pause_movie)
     client.on_message(filters.regex(re.compile(r"^\/resume$")))(resume_movie)
 

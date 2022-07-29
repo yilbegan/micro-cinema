@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pyrogram import Client
 from pyrogram.types import Message
 from pytgcalls import PyTgCalls
@@ -16,65 +18,58 @@ from ..misc.context import chat_clock
 from ..misc.context import pyrogram_client
 from ..misc.context import tgcalls_client
 from ..misc.permissions import moderator_required
+from ..misc.utils import format_time
 from ..misc.utils import resolve_location
 
 
-async def add_bookmark(chat_id: int):
-    clock = chat_clock.get()
-    current_status = clock.get(chat_id)
-    if current_status is None:
-        return
-
-    current_status.pause()
-    progress = current_status.get_progress()
-    del clock[chat_id]
-    movie = await Movie.filter(movie_id=current_status.movie_id).first()
-    episode = await Episode.filter(
-        movie=movie, episode_id=current_status.episode
-    ).first()
+async def add_bookmark(chat_id: int, status: ViewStatus):
+    movie = await Movie.filter(movie_id=status.movie_id).first()
+    episode = await Episode.filter(movie=movie, episode_id=status.episode).first()
 
     await Bookmark.create(
         chat_id=chat_id,
         movie=movie,
         episode=episode,
-        timecode=min(progress, episode.duration - 1),
+        timecode=min(status.progress, episode.duration - 1),
     )
 
 
 async def stream_movie(
-    message: Message, movie_id: str, episode: int, timecode: int | None = None
+    chat_id: int, movie_id: str, episode: int, timecode: int | None = None
 ):
     tgcalls = tgcalls_client.get()
+    client = pyrogram_client.get()
 
     movie = await Movie.filter(movie_id=movie_id).first()
     if movie is None:
-        await message.reply("Invalid movie id.")
+        await client.send_message(chat_id=chat_id, text="Invalid movie id.")
         return
     episode = await Episode.filter(episode_id=episode, movie=movie).first()
     if episode is None:
-        await message.reply("Invalid episode.")
+        await client.send_message(chat_id=chat_id, text="Invalid episode.")
         return
 
-    try:
-        active_call = tgcalls.get_active_call(message.chat.id)
-    except GroupCallNotFound:
-        active_call = None
-
-    await message.reply(
-        f"**Starting**\n\n"
-        f"Movie: `{movie.title}`\n"
-        f"Episode: `{episode.title} ({episode.episode_id})`"
+    await client.send_message(
+        chat_id=chat_id,
+        text=(
+            f"**Starting**\n\n"
+            f"Movie: `{movie.title}`\n"
+            f"Episode: `{episode.title} ({episode.episode_id})`"
+            + (f"\nTimecode: `{format_time(timecode)}`" if timecode else "")
+        ),
     )
 
     clock = chat_clock.get()
-    current_status = clock.get(message.chat.id)
+    current_status = clock.get(chat_id)
 
-    if active_call is None and current_status is None:
+    if current_status is None:
         action = tgcalls.join_group_call(
-            message.chat.id,
+            chat_id,
             AudioVideoPiped(
                 await resolve_location(
-                    episode.location if episode.cache is None else episode.cache
+                    episode.location
+                    if episode.cache is None or not Path(episode.cache).is_file()
+                    else episode.cache
                 ),
                 additional_ffmpeg_parameters=(
                     f" -ss {int(timecode)} " if timecode is not None else ""
@@ -83,12 +78,14 @@ async def stream_movie(
             stream_type=StreamType().pulse_stream,
         )
     else:
-        await add_bookmark(message.chat.id)
+        del clock[chat_id]
         action = tgcalls.change_stream(
-            message.chat.id,
+            chat_id,
             AudioVideoPiped(
                 await resolve_location(
-                    episode.location if episode.cache is None else episode.cache
+                    episode.location
+                    if episode.cache is None or not Path(episode.cache).is_file()
+                    else episode.cache
                 ),
                 additional_ffmpeg_parameters=(
                     f" -ss {int(timecode)} " if timecode is not None else ""
@@ -96,15 +93,15 @@ async def stream_movie(
             ),
         )
 
-    clock[message.chat.id] = ViewStatus(
+    clock[chat_id] = ViewStatus(
         movie_id=movie_id, episode=episode.episode_id, progress=timecode
     )
 
     try:
         await action
     except NoActiveGroupCall:
-        del clock[message.chat.id]
-        await message.reply("Please, create a group call.")
+        del clock[chat_id]
+        await client.send_message(chat_id=chat_id, text="Please, create a group call.")
 
 
 @moderator_required
@@ -114,7 +111,7 @@ async def play_movie(_: Client, message: Message):
     movie_id = movie_id
     episode = int(episode or 1)
     await stream_movie(
-        message=message,
+        chat_id=message.chat.id,
         movie_id=movie_id,
         episode=episode,
     )
@@ -130,7 +127,7 @@ async def play_bookmark(_: Client, message: Message):
         return
 
     await stream_movie(
-        message=message,
+        chat_id=message.chat.id,
         movie_id=bookmark.movie.movie_id,
         episode=bookmark.episode,
         timecode=bookmark.timecode,
@@ -148,7 +145,8 @@ async def stop_movie(_: Client, message: Message):
         return
 
     if match.group(1):
-        await add_bookmark(message.chat.id)
+        current_status.pause()
+        await add_bookmark(chat_id=message.chat.id, status=current_status)
     del clock[message.chat.id]
 
     try:
@@ -247,7 +245,9 @@ async def on_stream_ends(client: PyTgCalls, update: Update):
         update.chat_id,
         AudioVideoPiped(
             await resolve_location(
-                episode.location if episode.cache is None else episode.cache
+                episode.location
+                if episode.cache is None or not Path(episode.cache).is_file()
+                else episode.cache
             ),
         ),
     )
