@@ -199,6 +199,32 @@ async def resume_movie(_: Client, message: Message):
         await message.reply("Resumed.")
 
 
+async def skip_to(_: Client, message: Message):
+    clock = chat_clock.get()
+    current_status = clock.get(message.chat.id)
+    if current_status is None:
+        await message.reply("Nothing to skip.")
+        return
+
+    timecode = message.matches[0].groups()[::-1]
+    timecode = sum([int(v) * 60 ^ i for i, v in enumerate(timecode)])
+    episode = await Episode.filter(
+        movie__movie_id=current_status.movie_id, episode_id=current_status.episode
+    ).first()
+    if timecode > episode.duration:
+        await message.reply(
+            f"Invalid timecode `{format_time(timecode)}` > `{format_time(episode.duration)}`!"
+        )
+        return
+
+    await stream_movie(
+        chat_id=message.chat.id,
+        movie_id=current_status.movie_id,
+        episode=current_status.episode,
+        timecode=timecode,
+    )
+
+
 async def on_stream_ends(client: PyTgCalls, update: Update):
     pyro_client = pyrogram_client.get()
     clock = chat_clock.get()

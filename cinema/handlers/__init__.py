@@ -14,6 +14,7 @@ from .video import pause_movie
 from .video import play_bookmark
 from .video import play_movie
 from .video import resume_movie
+from .video import skip_to
 from .video import stop_movie
 
 
@@ -50,6 +51,9 @@ def setup_handlers(client: Client):
     client.on_message(filters.regex(re.compile(r"^\/stop( save)?$")))(stop_movie)
     client.on_message(filters.regex(re.compile(r"^\/pause$")))(pause_movie)
     client.on_message(filters.regex(re.compile(r"^\/resume$")))(resume_movie)
+    client.on_message(
+        filters.regex(re.compile(r"/skip to ([0-5]?[0-9]):([0-5]?[0-9]):([0-5]?[0-9])"))
+    )(skip_to)
 
 
 def setup_tgcalls(client: PyTgCalls):
