@@ -26,3 +26,4 @@ services:
       - ./config.yaml:/usr/src/app/config.yaml
       - ./account:/usr/src/app/account
       - ./movies:/usr/src/app/movies
+      - ./movies_cache:/usr/src/app/movies_cache
