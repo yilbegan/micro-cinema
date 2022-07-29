@@ -5,6 +5,7 @@ from loguru import logger
 from pytgcalls import idle
 from pytgcalls import PyTgCalls
 
+from .config import get_settings
 from .database import init as init_db
 from .database import update_from_settings
 from .handlers import setup_handlers
@@ -32,6 +33,14 @@ async def main():
         app_version=metadata.get("app_version"),
         lang_code=metadata.get("lang_pack"),
     )
+
+    settings = get_settings()
+
+    async with client:
+        me = await client.get_me()
+        logger.info(f"Logged in as {me.first_name}.")
+        for admin in settings.bot.admins:
+            await client.send_message(chat_id=admin, text="Cinema started!")
 
     setup_handlers(client)
     tgcalls = PyTgCalls(client)
